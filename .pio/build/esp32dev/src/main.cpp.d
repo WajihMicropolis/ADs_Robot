@@ -129,4 +129,5 @@
  /home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash.h \
  /home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash_counters.h \
  /home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
- include/RC_Control.hpp include/PWM.hpp
+ include/RC_Control.hpp include/PWM.hpp include/ODrive.hpp \
+ lib/ODriveArduino/ODriveArduino.h lib/ODriveArduino/ODriveEnums.h

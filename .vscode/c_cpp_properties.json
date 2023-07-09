@@ -10,6 +10,7 @@
             "includePath": [
                 "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/include",
                 "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/src",
+                "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/lib/ODriveArduino",
                 "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                 "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -242,6 +243,7 @@
                 "path": [
                     "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/include",
                     "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/src",
+                    "/home/wajieh/Documents/PlatformIO/Projects/ODrive_uROS_Control/lib/ODriveArduino",
                     "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                     "/home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
