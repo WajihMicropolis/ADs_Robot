@@ -17,7 +17,7 @@ void loop()
 {
 
   RC.getVal(RC.Val);
-  
+
   ODRIVE.motorControl(RC.Val.Throttle, RC.Val.Steering);
   ODRIVE.GetVelocity();
 

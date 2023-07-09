@@ -21,7 +21,8 @@ int RC_Control::RC_Read_PWM(PWM &channel)
     int val = channel.getValue();
     val = constrain(val, 1000, 2000);
     int mapped_val = map(val, 1000, 2000, -100, 100);
-
+    if (mapped_val > -10 && mapped_val < 10)
+        mapped_val = 0;
     return mapped_val;
 }
 
@@ -48,7 +49,8 @@ void RC_Control::getVal(RCval &RC, bool debug)
     if (!debug)
         return;
     Serial.printf("_steeringVal: %d \t", RC.Steering);
-    Serial.printf("_throttleVal: %d \t", RC.Throttle);
+    Serial.printf("_throttleVal: %d ", RC.Throttle);
+    Serial.println("");
 }
 
 RC_Control::~RC_Control()

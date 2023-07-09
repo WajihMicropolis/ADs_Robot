@@ -9,35 +9,32 @@ void ODrive::Init()
     Serial.println("Ready!");
 }
 
-void  ODrive::motorControl(int RC_Throttle, int RC_Steering)
+void ODrive::motorControl(int RC_Throttle, int RC_Steering)
 {
     float throttle = 0,
           steering = 0;
+    // Serial.printf("RC_Throttle: %d  \t", RC_Throttle);
+    // Serial.printf("RC_Steering: %d  \n", RC_Steering);
 
-    if (RC_Throttle > 0)
+    if (RC_Throttle != 0)
     {
-        throttle = map(RC_Throttle, minThrPer, maxThrPer, minMotorSpeed, maxMotorFwSpeed);
-    }
-    else if (RC_Throttle < 0)
-    {
-        throttle = map(abs(RC_Throttle), minThrPer, maxThrPer, minMotorSpeed, maxMotorBwSpeed);
-        throttle = -1 * throttle;
+        throttle = map(abs(RC_Throttle), minThrPer, maxThrPer, minMotorSpeed, maxMotorFwSpeed);
+        throttle = throttle / 100 * (RC_Throttle > 0 ? 1 : -1);
     }
     else
         throttle = 0;
 
-    if (RC_Steering > 0)
-    {
-        steering = map(RC_Steering, minSteerPer, maxSteerPer, minMotorSpeed, maxSteerspeed);
-    }
-    else if (RC_Steering < 0)
+    if (RC_Steering != 0)
     {
         steering = map(abs(RC_Steering), minSteerPer, maxSteerPer, minMotorSpeed, maxSteerspeed);
-        steering = -1 * steering;
+        steering = steering / 100 * (RC_Steering > 0 ? 1 : -1);
     }
     else
         steering = 0;
-        
+
+    // Serial.printf("throttle: %f  \t", throttle);
+    // Serial.printf("steering: %f  \n", steering);
+
     this->SetSpeed(throttle, steering);
 }
 
@@ -69,9 +66,9 @@ void ODrive::SetSpeed(float Linear_x, float Angle_z)
     odrive.SetVelocity(RightMotor, Right_Wheel_Velocity_In_RPS);
     odrive.SetVelocity(LeftMotor, Left_Wheel_Velocity_In_RPS);
 
-    Serial.printf("RightMotor Speed: %f  \n", Right_Wheel_Velocity_In_RPS);
-    Serial.printf("LeftMotor Speed: %f  \n", Left_Wheel_Velocity_In_RPS);
-    Serial.println("-----------------");
+    // Serial.printf("RightMotor Speed: %f  \n", Right_Wheel_Velocity_In_RPS);
+    // Serial.printf("LeftMotor Speed: %f  \n", Left_Wheel_Velocity_In_RPS);
+    // Serial.println("-----------------");
 }
 
 void ODrive::GetVelocity()

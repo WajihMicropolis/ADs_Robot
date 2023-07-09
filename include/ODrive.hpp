@@ -11,12 +11,11 @@
 #define minThrPer 10
 #define maxThrPer 100
 #define minMotorSpeed 0
-#define maxMotorFwSpeed 1
-#define maxMotorBwSpeed 1
+#define maxMotorFwSpeed 100
 
 #define minSteerPer 10
 #define maxSteerPer 100
-#define maxSteerspeed 2
+#define maxSteerspeed 100
 
 #define WheelRadius 0.158
 #define WheelBase 0.3872
@@ -48,7 +47,7 @@ public:
         Global_Left_Motor_Position_Prev,
         Global_Right_Motor_Speed,
         Global_Left_Motor_Speed;
-        
+
     ODrive(/* args */);
     ~ODrive();
 };
