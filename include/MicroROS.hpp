@@ -12,11 +12,43 @@
 #include <geometry_msgs/msg/pose.h>
 #include <nav_msgs/msg/odometry.h>
 
+
 #include "ODrive.hpp"
 
 class uROS
 {
 private:
+#define RCCHECK(fn)                  \
+    {                                \
+        rcl_ret_t temp_rc = fn;      \
+        if ((temp_rc != RCL_RET_OK)) \
+        {                            \
+        }                            \
+    }
+#define RCSOFTCHECK(fn)              \
+    {                                \
+        rcl_ret_t temp_rc = fn;      \
+        if ((temp_rc != RCL_RET_OK)) \
+        {                            \
+        }                            \
+    }
+
+#define EXECUTE_EVERY_N_MS(MS, X)          \
+                                           \
+    do                                     \
+    {                                      \
+        static volatile int64_t init = -1; \
+        if (init == -1)                    \
+        {                                  \
+            init = uxr_millis();           \
+        }                                  \
+        if (uxr_millis() - init > MS)      \
+        {                                  \
+            X;                             \
+            init = uxr_millis();           \
+        }                                  \
+    } while (0);
+
     rcl_subscription_t cmd_vel_subscriber;
     geometry_msgs__msg__Twist cmd_vel;
 
@@ -51,7 +83,6 @@ private:
     void destroy_entities();
 
 public:
-
     void ros_init();
     void ros_loop();
 

@@ -1,0 +1,89 @@
+const void uROS::euler_to_quat(float x, float y, float z, float *q)
+{
+  float c1 = cos((y) / 2);
+  float c2 = cos((z) / 2);
+  float c3 = cos((x) / 2);
+
+  float s1 = sin((y) / 2);
+  float s2 = sin((z) / 2);
+  float s3 = sin((x) / 2);
+
+  q[0] = sin(x / 2) * cos(y / 2) * cos(z / 2) - cos(x / 2) * sin(y / 2) * sin(z / 2);
+  q[1] = cos(x / 2) * sin(y / 2) * cos(z / 2) + sin(x / 2) * cos(y / 2) * sin(z / 2);
+  q[2] = cos(x / 2) * cos(y / 2) * sin(z / 2) - sin(x / 2) * sin(y / 2) * cos(z / 2);
+  q[3] = cos(x / 2) * cos(y / 2) * cos(z / 2) + sin(x / 2) * sin(y / 2) * sin(z / 2);
+}
+
+
+
+/**
+ * @brief odometry callback function. it calculates the odometry traveled by the robot and publish it as odometry topic.
+ * 
+ * @param timer 
+ * @param last_call_time 
+ */
+void odom_cb(rcl_timer_t *timer, int64_t last_call_time)
+{
+  /*RCLC_UNUSED(last_call_time);
+  // if (timer != NULL)
+  // {
+  float tyre_circumference = 2 * 3.14159 * WheelRadius;
+  float s = tyre_circumference * (Global_Motor2_Speed + Global_Motor1_Speed) / (2.0);
+  float w = tyre_circumference * (Global_Motor1_Speed - Global_Motor2_Speed) / (WheelBase);
+
+  odom.twist.twist.linear.x = s;
+  odom.twist.twist.angular.z = w;
+
+  // position in meters
+  float position_R_meter = Global_Motor1_Position * tyre_circumference;
+  float position_L_meter = Global_Motor2_Position * tyre_circumference;
+
+  float position_R_meter_Prev = Global_Motor1_Position_Prev * tyre_circumference;
+  float position_L_meter_Prev = Global_Motor2_Position_Prev * tyre_circumference;
+
+  // #Distance travelled
+  float delta_pos_l_m = position_L_meter - position_L_meter_Prev;
+  float delta_pos_r_m = position_R_meter - position_R_meter_Prev;
+
+  float d = (delta_pos_l_m + delta_pos_r_m) / 2.0;     // delta_ps
+  float th = (delta_pos_r_m - delta_pos_l_m) / WheelBase; // works for small angles
+
+  float xd = cos(th) * d;
+  float yd = -sin(th) * d;
+
+  x += cos(theta) * xd - sin(theta) * yd;
+  y += sin(theta) * xd + cos(theta) * yd;
+  theta = (theta + th);
+  if (theta > 2 * 3.14159)
+    theta = 0;
+
+  odom.pose.pose.position.x = x;
+  odom.pose.pose.position.y = y;
+  float q[4];
+  euler_to_quat(0, 0, theta, q);
+
+  odom.pose.pose.orientation.z = q[2];
+  odom.pose.pose.orientation.w = q[3];
+  RCSOFTCHECK(rcl_publish(&odom_publisher, &odom, NULL));
+  // }*/
+}
+
+
+RCCHECK(rclc_publisher_init_default(
+      &odom_publisher,
+      &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry), // message type
+      "odom"));
+
+  // create timer,
+  const unsigned int timer_timeout = 50;
+
+  RCCHECK(rclc_timer_init_default(
+      &timer,
+      &support,
+      RCL_MS_TO_NS(timer_timeout),
+      odom_cb));
+
+  RCCHECK(rclc_executor_add_timer(&executor, &timer));  // used for publisher
+
+  rcl_publisher_fini(&this->odom_publisher, &this->node);
