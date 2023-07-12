@@ -33,12 +33,12 @@ private:
           velocity1 = 0;
 
     unsigned long getVelMillis = 0;
-    void SetSpeed(float Linear_x, float Angle_z);
 
 public:
     void Init();
     void motorControl(int RC_Throttle, int RC_Steering);
     void GetVelocity();
+    void SetSpeed(float Linear_x, float Angle_z);
     void SerialControl();
 
     float Global_Right_Motor_Position,

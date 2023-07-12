@@ -140,6 +140,7 @@ void ODrive::SerialControl()
 
 ODrive::ODrive(/* args */)
 {
+    // this->_ODRIVE = ODrive;
 }
 
 ODrive::~ODrive()

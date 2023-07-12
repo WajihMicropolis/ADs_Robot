@@ -12,7 +12,6 @@
 #include <geometry_msgs/msg/pose.h>
 #include <nav_msgs/msg/odometry.h>
 
-
 #include "ODrive.hpp"
 
 class uROS
@@ -49,8 +48,8 @@ private:
         }                                  \
     } while (0);
 
-    rcl_subscription_t cmd_vel_subscriber;
-    geometry_msgs__msg__Twist cmd_vel;
+    rcl_subscription_t _cmd_vel_subscriber;
+    geometry_msgs__msg__Twist _cmd_vel;
 
     rcl_publisher_t odom_publisher;
     nav_msgs__msg__Odometry odom;
@@ -82,10 +81,10 @@ private:
     bool create_entities();
     void destroy_entities();
 
+
 public:
     void ros_init();
     void ros_loop();
-
     uROS(/* args */);
     ~uROS();
 };
