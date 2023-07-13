@@ -34,6 +34,7 @@ private:
 
 public:
     ODriveArduino *odrive;
+    void CmdVelCb(const void *msgin);
 
     void Init();
     void motorControl(int RC_Throttle, int RC_Steering);

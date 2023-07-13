@@ -23,11 +23,11 @@ private:
 
     unsigned long getVelMillis = 0;
 
-    nav_msgs__msg__Odometry odom;
+    nav_msgs__msg__Odometry odom_msg;
     ODrive *_ODrive;
 
 public:
-    void odomCb();
+    nav_msgs__msg__Odometry callback();
     rcl_publisher_t odom_publisher;
     OdomNode(/* args */);
     ~OdomNode();

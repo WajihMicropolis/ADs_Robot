@@ -12,6 +12,7 @@
 #include <geometry_msgs/msg/pose.h>
 #include <nav_msgs/msg/odometry.h>
 #include <rcutils/logging_macros.h>
+#include <rcl/time.h>
 
 #include "ODrive.hpp"
 #include "OdomNode.hpp"
@@ -62,7 +63,6 @@ private:
 
     bool _micro_ros_init_successful;
 
-
     enum states
     {
         WAITING_AGENT,
@@ -70,8 +70,8 @@ private:
         AGENT_CONNECTED,
         AGENT_DISCONNECTED
     } AgentState;
+    
 
-    // void odom_cb(rcl_timer_t *timer, int64_t last_call_time);
     bool create_entities();
     void destroy_entities();
 

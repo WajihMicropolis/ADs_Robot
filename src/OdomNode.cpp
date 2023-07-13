@@ -40,19 +40,21 @@ const void OdomNode::euler_to_quat(float x, float y, float z, float *q)
 }
 
 /**
- * @brief odometry callback function. it calculates the odometry traveled by the robot and publish it as odometry topic.
+ * @brief odometry callback function.
+ * it calculates the odometry traveled by the robot,
+ * and publish it as odometry topic.
  *
- * @param timer
- * @param last_call_time
+ * @return nav_msgs__msg__Odometry
  */
-void OdomNode::odomCb()
+nav_msgs__msg__Odometry OdomNode::callback()
 {
   float tyre_circumference = 2 * 3.14159 * WheelRadius;
-  float s = tyre_circumference * (this->_Global_Left_Motor_Speed + this->_Global_Right_Motor_Speed) / (2.0);
-  float w = tyre_circumference * (this->_Global_Right_Motor_Speed - this->_Global_Left_Motor_Speed) / (WheelBase);
+  
+  float linear_x = tyre_circumference * (this->_Global_Left_Motor_Speed + this->_Global_Right_Motor_Speed) / (2.0);
+  float angular_z = tyre_circumference * (this->_Global_Right_Motor_Speed - this->_Global_Left_Motor_Speed) / (WheelBase);
 
-  this->odom.twist.twist.linear.x = s;
-  this->odom.twist.twist.angular.z = w;
+  this->odom_msg.twist.twist.linear.x = linear_x;
+  this->odom_msg.twist.twist.angular.z = angular_z;
 
   // position in meters
   float position_R_meter = this->_Global_Right_Motor_Position * tyre_circumference;
@@ -64,7 +66,7 @@ void OdomNode::odomCb()
   // #Distance travelled
   float delta_pos_l_m = position_L_meter - position_L_meter_Prev;
   float delta_pos_r_m = position_R_meter - position_R_meter_Prev;
-
+  
   float d = (delta_pos_l_m + delta_pos_r_m) / 2.0;        // delta_ps
   float th = (delta_pos_r_m - delta_pos_l_m) / WheelBase; // works for small angles
 
@@ -77,15 +79,16 @@ void OdomNode::odomCb()
   if (this->_theta > 2 * 3.14159)
     this->_theta = 0;
 
-  this->odom.pose.pose.position.x = this->_x;
-  this->odom.pose.pose.position.y = this->_y;
+  this->odom_msg.pose.pose.position.x = this->_x;
+  this->odom_msg.pose.pose.position.y = this->_y;
 
   float q[4];
   euler_to_quat(0, 0, this->_theta, q);
 
-  this->odom.pose.pose.orientation.z = q[2];
-  this->odom.pose.pose.orientation.w = q[3];
-  // RCSOFTCHECK(rcl_publish(&odom_publisher, &odom, NULL));
+  this->odom_msg.pose.pose.orientation.z = q[2];
+  this->odom_msg.pose.pose.orientation.w = q[3];
+
+  return this->odom_msg;
 }
 OdomNode::~OdomNode()
 {
