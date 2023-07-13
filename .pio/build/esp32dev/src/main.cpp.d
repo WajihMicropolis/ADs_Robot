@@ -131,7 +131,7 @@
  /home/wajieh/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  include/RC_Control.hpp include/PWM.hpp include/ODrive.hpp \
  lib/ODriveArduino/ODriveArduino.h lib/ODriveArduino/ODriveEnums.h \
- include/MicroROS.hpp \
+ include/RosNode.hpp \
  .pio/libdeps/esp32dev/micro_ros_platformio/platform_code/micro_ros_platformio.h \
  .pio/libdeps/esp32dev/micro_ros_platformio/libmicroros/include/uxr/client/transport.h \
  .pio/libdeps/esp32dev/micro_ros_platformio/libmicroros/include/uxr/client/config.h \
@@ -327,4 +327,4 @@
  .pio/libdeps/esp32dev/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__functions.h \
  .pio/libdeps/esp32dev/micro_ros_platformio/libmicroros/include/nav_msgs/msg/rosidl_generator_c__visibility_control.h \
  .pio/libdeps/esp32dev/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__type_support.h \
- include/ODrive.hpp
+ include/ODrive.hpp include/OdomNode.hpp include/RosNode.hpp

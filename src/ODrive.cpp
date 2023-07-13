@@ -1,20 +1,21 @@
 #include "ODrive.hpp"
 
-ODriveArduino odrive(Serial1);
+ODrive::ODrive(/* args */)
+{
+    this->odrive = new ODriveArduino(Serial1);
+}
 
 void ODrive::Init()
 {
     Serial1.begin(BAUDRATE, SERIAL_8N1, ESP32_UART2_PIN_TX, ESP32_UART2_PIN_RX);
 
-    Serial.println("Ready!");
+    Serial.println("[ODRIVE] ODrive communication initialized!");
 }
 
 void ODrive::motorControl(int RC_Throttle, int RC_Steering)
 {
     float throttle = 0,
           steering = 0;
-    // Serial.printf("RC_Throttle: %d  \t", RC_Throttle);
-    // Serial.printf("RC_Steering: %d  \n", RC_Steering);
 
     if (RC_Throttle != 0)
     {
@@ -31,9 +32,6 @@ void ODrive::motorControl(int RC_Throttle, int RC_Steering)
     }
     else
         steering = 0;
-
-    // Serial.printf("throttle: %f  \t", throttle);
-    // Serial.printf("steering: %f  \n", steering);
 
     this->SetSpeed(throttle, steering);
 }
@@ -63,30 +61,8 @@ void ODrive::SetSpeed(float Linear_x, float Angle_z)
         Left_Wheel_Velocity_In_RPS = -1 * (Left_Wheel_Velocity_In_RPS);
     }
 
-    odrive.SetVelocity(RightMotor, Right_Wheel_Velocity_In_RPS);
-    odrive.SetVelocity(LeftMotor, Left_Wheel_Velocity_In_RPS);
-
-    // Serial.printf("RightMotor Speed: %f  \n", Right_Wheel_Velocity_In_RPS);
-    // Serial.printf("LeftMotor Speed: %f  \n", Left_Wheel_Velocity_In_RPS);
-    // Serial.println("-----------------");
-}
-
-void ODrive::GetVelocity()
-{
-    if (millis() - getVelMillis > 16)
-    {
-
-        this->Global_Right_Motor_Position_Prev = this->Global_Right_Motor_Position;
-        this->Global_Left_Motor_Position_Prev = this->Global_Left_Motor_Position;
-
-        this->Global_Right_Motor_Speed = odrive.GetVelocity(RightMotor);
-        this->Global_Left_Motor_Speed = -1 * odrive.GetVelocity(LeftMotor);
-
-        this->Global_Right_Motor_Position = odrive.GetPosition(RightMotor);
-        this->Global_Left_Motor_Position = -1 * odrive.GetPosition(LeftMotor);
-
-        getVelMillis = millis();
-    }
+    this->odrive->SetVelocity(RightMotor, Right_Wheel_Velocity_In_RPS);
+    this->odrive->SetVelocity(LeftMotor, Left_Wheel_Velocity_In_RPS);
 }
 
 void ODrive::SerialControl()
@@ -102,10 +78,10 @@ void ODrive::SerialControl()
             int requested_state = AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL;
 
             Serial << "Axis" << c << ": Requesting state " << requested_state << '\n';
-            odrive.run_state(0, requested_state, false); // don't wait
+            this->odrive->run_state(0, requested_state, false); // don't wait
 
             Serial << "Axis" << c << ": Requesting state " << requested_state << '\n';
-            odrive.run_state(1, requested_state, false); // don't wait
+            this->odrive->run_state(1, requested_state, false); // don't wait
         }
 
         else if (c == 'f')
@@ -114,8 +90,8 @@ void ODrive::SerialControl()
             this->velocity1 -= 0.1;
             Serial.printf("Velocity is set to: %f", this->velocity0);
 
-            odrive.SetVelocity(0, this->velocity0);
-            odrive.SetVelocity(1, this->velocity1);
+            this->odrive->SetVelocity(0, this->velocity0);
+            this->odrive->SetVelocity(1, this->velocity1);
         }
 
         else if (c == 'r')
@@ -124,8 +100,8 @@ void ODrive::SerialControl()
             this->velocity1 += 0.1;
             Serial.printf("Velocity is set to: %f", this->velocity0);
 
-            odrive.SetVelocity(0, this->velocity0);
-            odrive.SetVelocity(1, this->velocity1);
+            this->odrive->SetVelocity(0, this->velocity0);
+            this->odrive->SetVelocity(1, this->velocity1);
         }
 
         // Read bus voltage
@@ -133,14 +109,9 @@ void ODrive::SerialControl()
         {
             // odrive_serial << "r vbus_voltage\n";
             Serial1 << "r vbus_voltage\n";
-            Serial << "Vbus voltage: " << odrive.readFloat() << '\n';
+            Serial << "Vbus voltage: " << this->odrive->readFloat() << '\n';
         }
     }
-}
-
-ODrive::ODrive(/* args */)
-{
-    // this->_ODRIVE = ODrive;
 }
 
 ODrive::~ODrive()

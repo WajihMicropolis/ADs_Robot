@@ -32,23 +32,15 @@ private:
     float velocity0 = 0,
           velocity1 = 0;
 
-    unsigned long getVelMillis = 0;
-
 public:
+    ODriveArduino *odrive;
+
     void Init();
     void motorControl(int RC_Throttle, int RC_Steering);
-    void GetVelocity();
     void SetSpeed(float Linear_x, float Angle_z);
     void SerialControl();
 
-    float Global_Right_Motor_Position,
-        Global_Left_Motor_Position,
-        Global_Right_Motor_Position_Prev,
-        Global_Left_Motor_Position_Prev,
-        Global_Right_Motor_Speed,
-        Global_Left_Motor_Speed;
-
-    ODrive(/* args */);
+    ODrive();
     ~ODrive();
 };
 
@@ -65,12 +57,5 @@ inline Print &operator<<(Print &obj, float arg)
     obj.print(arg, 4);
     return obj;
 }
-
-void ODrive_Init();
-void ODriveSerialControl();
-
-void ODriveRCControl(int RC_Throttle, int RC_Steering);
-void ODriveSetSpeed(float Linear_x, float Angle_z);
-void ODriveGetVelocity();
 
 #endif //_ODRIVE_CONTROL_HPP_
