@@ -1,14 +1,16 @@
 #include "OdomNode.hpp"
 
-OdomNode::OdomNode(/* args */)
+OdomNode::OdomNode()
 {
   this->_ODrive = new ODrive;
+  pinMode(2, OUTPUT);
 }
-
-void OdomNode::GetVelocity()
+short c = 0;
+void OdomNode::updateOdom(bool debug)
 {
-  if (millis() - this->getVelMillis > 16)
+  if (millis() - this->getVelMillis > 5)
   {
+
     // Save Previous Position
     this->_Global_Right_Motor_Position_Prev = this->_Global_Right_Motor_Position;
     this->_Global_Left_Motor_Position_Prev = this->_Global_Left_Motor_Position;
@@ -19,6 +21,11 @@ void OdomNode::GetVelocity()
     this->_Global_Right_Motor_Position = this->_ODrive->odrive->GetPosition(RightMotor);
     this->_Global_Left_Motor_Position = -1 * this->_ODrive->odrive->GetPosition(LeftMotor);
 
+    if (debug)
+    {
+      Serial.printf("R_M_Pos: %f \n", this->_Global_Right_Motor_Position);
+      Serial.printf("L_M_Pos: %f \n", this->_Global_Left_Motor_Position);
+    }
     getVelMillis = millis();
   }
 }
@@ -46,10 +53,10 @@ const void OdomNode::euler_to_quat(float x, float y, float z, float *q)
  *
  * @return nav_msgs__msg__Odometry
  */
-nav_msgs__msg__Odometry OdomNode::callback()
+nav_msgs__msg__Odometry OdomNode::callback(bool debug)
 {
   float tyre_circumference = 2 * 3.14159 * WheelRadius;
-  
+
   float linear_x = tyre_circumference * (this->_Global_Left_Motor_Speed + this->_Global_Right_Motor_Speed) / (2.0);
   float angular_z = tyre_circumference * (this->_Global_Right_Motor_Speed - this->_Global_Left_Motor_Speed) / (WheelBase);
 
@@ -66,7 +73,7 @@ nav_msgs__msg__Odometry OdomNode::callback()
   // #Distance travelled
   float delta_pos_l_m = position_L_meter - position_L_meter_Prev;
   float delta_pos_r_m = position_R_meter - position_R_meter_Prev;
-  
+
   float d = (delta_pos_l_m + delta_pos_r_m) / 2.0;        // delta_ps
   float th = (delta_pos_r_m - delta_pos_l_m) / WheelBase; // works for small angles
 
@@ -88,6 +95,11 @@ nav_msgs__msg__Odometry OdomNode::callback()
   this->odom_msg.pose.pose.orientation.z = q[2];
   this->odom_msg.pose.pose.orientation.w = q[3];
 
+  if (debug)
+  {
+    Serial.printf("x: %f ", this->_x);
+    Serial.printf("y: %f \n", this->_y);
+  }
   return this->odom_msg;
 }
 OdomNode::~OdomNode()

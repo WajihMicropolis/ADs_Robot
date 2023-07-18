@@ -17,7 +17,7 @@
 #define maxSteerPer 100
 #define maxSteerspeed 100
 
-#define WheelRadius 0.158
+#define WheelRadius 0.079
 #define WheelBase 0.3872
 
 #define RightMotor 0

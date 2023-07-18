@@ -12,7 +12,6 @@ private:
           _y = 0,
           _theta = 0;
     const void euler_to_quat(float x, float y, float z, float *q);
-    void GetVelocity();
 
     float _Global_Right_Motor_Position,
         _Global_Left_Motor_Position,
@@ -27,9 +26,10 @@ private:
     ODrive *_ODrive;
 
 public:
-    nav_msgs__msg__Odometry callback();
+    void updateOdom(bool debug = false);
+    nav_msgs__msg__Odometry callback(bool debug = false);
     rcl_publisher_t odom_publisher;
-    OdomNode(/* args */);
+    OdomNode();
     ~OdomNode();
 };
 

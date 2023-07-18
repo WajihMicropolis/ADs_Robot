@@ -4,28 +4,29 @@ ODrive _ODRIVE;
 OdomNode Odom;
 char _headerFrame[] = "odom",
      _childFrame[] = "base_link";
+
+void uROS::Init()
+{
+   pinMode(2, OUTPUT);
+   set_microros_serial_transports(Serial);
+   AgentState = WAITING_AGENT;
+   _ODRIVE.Init();
+}
+
+nav_msgs__msg__Odometry odomMsg;
 void odomCb(rcl_timer_t *timer, int64_t last_call_time)
 {
    RCLC_UNUSED(last_call_time);
-   if (timer != NULL)
-   {
-      nav_msgs__msg__Odometry odomMsg = Odom.callback();
-
-      odomMsg.header.frame_id.data = _headerFrame;
-      odomMsg.child_frame_id.data = _childFrame;
-      RCSOFTCHECK(rcl_publish(&Odom.odom_publisher, &odomMsg, NULL));
-   }
+   // odomMsg.pose.pose.position.x = 1;
+   // odomMsg.header.frame_id.data = _headerFrame;
+   // odomMsg.child_frame_id.data = _childFrame;
+   RCCHECK(rcl_publish(&Odom.odom_publisher, &odomMsg, NULL));
 }
-
 void CmdVelCb(const void *msgin)
 {
    const geometry_msgs__msg__Twist *cmdVel = (const geometry_msgs__msg__Twist *)msgin;
 
    _ODRIVE.SetSpeed(cmdVel->linear.x, cmdVel->angular.z);
-
-   //   float led_intensity = map(abs(cmdVel->linear.x), 0, 1, 0, 255);
-   //   analogWrite(LED_PIN, led_intensity);
-   //   RCUTILS_LOG_INFO("mylogger", "message");
 }
 
 bool uROS::create_entities()
@@ -40,7 +41,7 @@ bool uROS::create_entities()
 
    // Topic Names
    const char *cmdVel_topic = "cmd_vel";
-   const char *odom_topic = "odom";
+   const char *odom_topic = "wheel_odom";
    // create subscriber
    RCCHECK(rclc_subscription_init_default(
        &_cmd_vel_subscriber,
@@ -55,7 +56,7 @@ bool uROS::create_entities()
        odom_topic));
 
    // create timer,
-   const unsigned int timer_timeout = 50;
+   const unsigned int timer_timeout = 1;
 
    RCCHECK(rclc_timer_init_default(
        &timer,
@@ -64,12 +65,9 @@ bool uROS::create_entities()
        odomCb));
    // create executor
    executor = rclc_executor_get_zero_initialized_executor();
-   RCCHECK(rclc_executor_init(&executor, &support.context, 4, &allocator));
-
+   RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
    RCCHECK(rclc_executor_add_timer(&executor, &timer)); // used for publisher
-
-   // RCCHECK();
-   rclc_executor_add_subscription(&executor, &_cmd_vel_subscriber, &_cmd_vel, &CmdVelCb, ON_NEW_DATA);
+   RCCHECK(rclc_executor_add_subscription(&executor, &_cmd_vel_subscriber, &_cmd_vel, &CmdVelCb, ON_NEW_DATA));
    return true;
 }
 void uROS::destroy_entities()
@@ -84,17 +82,11 @@ void uROS::destroy_entities()
    rclc_executor_fini(&executor);
    rclc_support_fini(&support);
 }
-
-void uROS::Init()
-{
-   set_microros_serial_transports(Serial);
-   AgentState = WAITING_AGENT;
-   _ODRIVE.Init();
-   
-}
+unsigned long duration = 0;
 
 void uROS::Update()
 {
+
    switch (AgentState)
    {
    case WAITING_AGENT:
@@ -102,9 +94,10 @@ void uROS::Update()
       break;
 
    case AGENT_AVAILABLE: // create_entities function re-initialize micro-ros setup
-      AgentState = (true == create_entities()) ? AGENT_CONNECTED : WAITING_AGENT;
+      AgentState = (create_entities() == true) ? AGENT_CONNECTED : WAITING_AGENT;
       if (AgentState == WAITING_AGENT)
       {
+         digitalWrite(2, !digitalRead(2));
          destroy_entities();
       }
       break;
@@ -113,9 +106,9 @@ void uROS::Update()
       EXECUTE_EVERY_N_MS(200, AgentState = (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) ? AGENT_CONNECTED : AGENT_DISCONNECTED;);
       if (AgentState == AGENT_CONNECTED)
       {
-         RCSOFTCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
+         Odom.updateOdom();
+         odomMsg = Odom.callback();
          RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
-         RCUTILS_LOG_INFO("mylogger", "message");
       }
       break;
 

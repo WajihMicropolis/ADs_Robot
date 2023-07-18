@@ -21,8 +21,8 @@ private:
 public:
     struct RCval
     {
-        int Steering;
-        int Throttle;
+        float Steering;
+        float Throttle;
         bool Chan3;
         bool Chan4;
     }Val;

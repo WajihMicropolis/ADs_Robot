@@ -4,20 +4,20 @@
 #include "RosNode.hpp"
 
 RC_Control RC;
-
+ODrive ODRIVE;
 uROS ROS;
 void setup()
 {
   Serial.begin(115200);
-
-  RC.Init();
+  // RC.Init();
+  // ODRIVE.Init();
   ROS.Init();
 }
 
 void loop()
 {
-  RC.getVal(RC.Val);
-  
+  // RC.getVal(RC.Val);
+  // ODRIVE.SetSpeed(RC.Val.Throttle, RC.Val.Steering);
   ROS.Update();
 
   // Serial.println(RC.Val.Steering);

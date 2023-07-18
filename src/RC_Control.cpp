@@ -42,7 +42,10 @@ bool RC_Control::RC_Read_Bool(PWM &channel)
 void RC_Control::getVal(RCval &RC, bool debug)
 {
     RC.Steering = RC_Read_PWM(*steering);
+    RC.Steering = RC.Steering/100;
     RC.Throttle = RC_Read_PWM(*throttle);
+    RC.Throttle = RC.Throttle/100;
+    
     // RC.Chan3 =    RC_Read_PWM(*channel3);
     // RC.Chan4 = RC_Read_PWM(*channel4);
 
