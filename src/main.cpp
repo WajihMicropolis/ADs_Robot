@@ -9,16 +9,29 @@ uROS ROS;
 void setup()
 {
   Serial.begin(115200);
-  // RC.Init();
-  // ODRIVE.Init();
-  ROS.Init();
+
+  RC.Init();
+  ODRIVE.Init();
+  // ROS.Init();
 }
 
 void loop()
 {
-  // RC.getVal(RC.Val);
-  // ODRIVE.SetSpeed(RC.Val.Throttle, RC.Val.Steering);
-  ROS.Update();
+  if (RC.checkFailSafe(*RC.steering))
+  {
+    Serial.println("RC NOT CONNECTED!!!");
+  }
+  else
+  {
+    Serial.println("RC CONNECTED");
+    RC.getVal(RC.Data, true);
+  }
 
-  // Serial.println(RC.Val.Steering);
+  ODRIVE.SetSpeed(RC.Data.Throttle, RC.Data.Steering);
+  // ROS.Update();
+
+  // Serial.println(RC.Data.Steering);
 }
+// -1 -100 0 0
+
+// 0 0 15 0

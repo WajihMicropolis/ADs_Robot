@@ -1,3 +1,3 @@
 .pio/build/esp32dev/FrameworkArduino/libb64/cdecode.c.o: \
- /home/wajieh/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cdecode.c \
- /home/wajieh/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cdecode.h
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cdecode.c \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cdecode.h

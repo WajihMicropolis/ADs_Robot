@@ -6,29 +6,39 @@
 class RC_Control
 {
 private:
-    PWM *steering;
     PWM *throttle;
     PWM *channel3;
     PWM *channel4;
+#define steeringPin 35
+#define throttlePin 34
+#define chan3Pin 32
 
     bool current_val = 0,
          prev_val = 0,
          buttonCh = LOW;
+    bool failSafe = LOW;
+
+    int Button_val;
+    float _Safe, _prevSafe;
+    unsigned long prevmil = 0;
 
     int RC_Read_PWM(PWM &channel);
     bool RC_Read_Bool(PWM &channel);
 
 public:
-    struct RCval
+    PWM *steering;
+
+    struct RCData
     {
-        float Steering;
-        float Throttle;
-        bool Chan3;
-        bool Chan4;
-    }Val;
+        float Steering = 0.0;
+        float Throttle = 0.0;
+        bool Chan3 = LOW;
+        bool Chan4 = LOW;
+    } Data;
 
     void Init();
-    void getVal(RCval &RC,bool debug = false);
+    void getVal(RCData &RC, bool debug = false);
+    bool checkFailSafe(PWM &channel);
 
     RC_Control(/* args */);
     ~RC_Control();
