@@ -8,7 +8,7 @@ ODrive::ODrive(/* args */)
 void ODrive::Init()
 {
     Serial1.begin(BAUDRATE, SERIAL_8N1, ESP32_UART2_PIN_TX, ESP32_UART2_PIN_RX);
-
+    this->SetSpeed(0.0, 0.0);
     Serial.println("[ODRIVE] ODrive communication initialized!");
 }
 
@@ -60,12 +60,11 @@ void ODrive::SetSpeed(float Linear_x, float Angle_z)
         Left_Wheel_Velocity_In_RPS = Right_Wheel_Velocity_In_RPS = Linear_x / (2 * 3.14 * WheelRadius);
         Left_Wheel_Velocity_In_RPS = -1 * (Left_Wheel_Velocity_In_RPS);
     }
-
+    Serial.println("RightMotor" + String(Right_Wheel_Velocity_In_RPS));
+    Serial.println("LeftMotor" + String(Left_Wheel_Velocity_In_RPS));
     this->odrive->SetVelocity(RightMotor, Right_Wheel_Velocity_In_RPS);
     this->odrive->SetVelocity(LeftMotor, Left_Wheel_Velocity_In_RPS);
 }
-
-
 
 void ODrive::SerialControl()
 {

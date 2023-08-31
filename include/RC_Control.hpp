@@ -11,7 +11,7 @@ private:
     PWM *channel4;
 #define steeringPin 35
 #define throttlePin 34
-#define chan3Pin 32
+#define chan3Pin 32 
 
     bool current_val = 0,
          prev_val = 0,

@@ -14,7 +14,6 @@
 #include <rcutils/logging_macros.h>
 #include <rcl/time.h>
 
-#include "ODrive.hpp"
 #include "OdomNode.hpp"
 class uROS
 {
@@ -63,12 +62,15 @@ private:
         AGENT_CONNECTED,
         AGENT_DISCONNECTED
     } AgentState;
-    
 
     bool create_entities();
     void destroy_entities();
 
 public:
+    void cmdVelCb();
+    geometry_msgs__msg__Twist cmdVel;
+
+    bool rosNodeAvail = LOW;
     void Init();
     void Update();
     uROS(/* args */);

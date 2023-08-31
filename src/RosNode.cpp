@@ -1,16 +1,15 @@
 #include "RosNode.hpp"
 
-ODrive _ODRIVE;
 OdomNode Odom;
 char _headerFrame[] = "odom",
      _childFrame[] = "base_link";
+geometry_msgs__msg__Twist cmdVelMsg;
 
 void uROS::Init()
 {
    pinMode(2, OUTPUT);
    set_microros_serial_transports(Serial);
    AgentState = WAITING_AGENT;
-   _ODRIVE.Init();
 }
 
 nav_msgs__msg__Odometry odomMsg;
@@ -25,18 +24,23 @@ void odomCb(rcl_timer_t *timer, int64_t last_call_time)
 void CmdVelCb(const void *msgin)
 {
    const geometry_msgs__msg__Twist *cmdVel = (const geometry_msgs__msg__Twist *)msgin;
-
-   _ODRIVE.SetSpeed(cmdVel->linear.x, cmdVel->angular.z);
+   cmdVelMsg.linear = cmdVel->linear;
+   cmdVelMsg.angular = cmdVel->angular;
+}
+void uROS::cmdVelCb()
+{
+   this->cmdVel.linear = cmdVelMsg.linear;
+   this->cmdVel.angular = cmdVelMsg.angular;
 }
 
 bool uROS::create_entities()
 {
+   const char *node_name = "uController";
    // Initialize micro-ROS allocator
    allocator = rcl_get_default_allocator();
    // create init_options
    RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
    // create node
-   const char *node_name = "uController";
    RCCHECK(rclc_node_init_default(&node, node_name, "", &support));
 
    // Topic Names
@@ -67,7 +71,7 @@ bool uROS::create_entities()
    executor = rclc_executor_get_zero_initialized_executor();
    RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
    RCCHECK(rclc_executor_add_timer(&executor, &timer)); // used for publisher
-   RCCHECK(rclc_executor_add_subscription(&executor, &_cmd_vel_subscriber, &_cmd_vel, &CmdVelCb, ON_NEW_DATA));
+   RCCHECK(rclc_executor_add_subscription(&executor, &_cmd_vel_subscriber, &_cmd_vel, &CmdVelCb, ALWAYS));
    return true;
 }
 void uROS::destroy_entities()
@@ -83,10 +87,8 @@ void uROS::destroy_entities()
    rclc_support_fini(&support);
 }
 unsigned long duration = 0;
-
 void uROS::Update()
 {
-
    switch (AgentState)
    {
    case WAITING_AGENT:
@@ -97,7 +99,7 @@ void uROS::Update()
       AgentState = (create_entities() == true) ? AGENT_CONNECTED : WAITING_AGENT;
       if (AgentState == WAITING_AGENT)
       {
-         digitalWrite(2, !digitalRead(2));
+         // digitalWrite(2, !digitalRead(2));
          destroy_entities();
       }
       break;
@@ -106,13 +108,15 @@ void uROS::Update()
       EXECUTE_EVERY_N_MS(200, AgentState = (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) ? AGENT_CONNECTED : AGENT_DISCONNECTED;);
       if (AgentState == AGENT_CONNECTED)
       {
-         Odom.updateOdom();
-         odomMsg = Odom.callback();
+         // this->rosNodeAvail = true;
+         // Odom.updateOdom();
+         // odomMsg = Odom.callback();
          RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
       }
       break;
 
    case AGENT_DISCONNECTED:
+      this->rosNodeAvail = false;
       destroy_entities();
       AgentState = WAITING_AGENT;
       break;
@@ -124,6 +128,8 @@ void uROS::Update()
 
 uROS::uROS(/* args */)
 {
+   this->cmdVel.linear.x = 0.0;
+   this->cmdVel.angular.z = 0.0;
 }
 
 uROS::~uROS()
