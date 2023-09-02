@@ -1,42 +1,84 @@
 #include "SensorsRead.hpp"
 
-uint64_t prevMill = 0;
-uint8_t readDuration = 50;
-
-struct SensorsRead
+SensorsRead::SensorsRead(/* args */)
 {
-    int left;
-    int right;
-} us;
 
-
-
-void sensorsInit()
-{
-    for (size_t i = 0; i < numOfUs; i++)
-        pinMode(trigPins[i], OUTPUT), pinMode(echoPins[i], INPUT);
+    right_ultrasonic = new sensor(right_trig, right_echo);
+    center_right_ultrasonic = new sensor(center_right_trig, center_right_echo);
+    center_left_ultrasonic = new sensor(center_left_trig, center_left_echo);
+    left_ultrasonic = new sensor(left_trig, left_echo);
 }
 
-int read_distance(const uint8_t trig, const uint8_t echo)
+void SensorsRead::Init()
 {
-    digitalWrite(trig, LOW);
-    delayMicroseconds(5);
-    digitalWrite(trig, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trig, LOW);
-    delayMicroseconds(5);
-    float duration = pulseIn(echo, HIGH, 100000);
-    float distance = duration * 0.0342 / 2;
-
-    return (distance < 401) ? (int)distance : 0;
+    // initialize 4 objects for ultrasonic struct
+    this->right_ultrasonic->setPinMode();
+    this->center_right_ultrasonic->setPinMode();
+    this->center_left_ultrasonic->setPinMode();
+    this->left_ultrasonic->setPinMode();
 }
 
-void updateSensors()
+void SensorsRead::update(bool debug)
 {
     if (millis() - prevMill > readDuration)
     {
-
-        // us.left = read_distance(left_trig, left_echo);
-        // Serial.println(us.left), prevMill = millis();
+        rightDist = this->right_ultrasonic->getDistance();
+        centRightDist = this->center_right_ultrasonic->getDistance();
+        centLeftDist = this->center_left_ultrasonic->getDistance();
+        leftDist = this->left_ultrasonic->getDistance();
+        if (debug)
+        {
+            Serial.printf("right: %f \n", rightDist);
+            Serial.printf("center_right: %f \n", centRightDist);
+            Serial.printf("center_left: %f \n", centLeftDist);
+            Serial.printf("left: %f \n", leftDist);
+            Serial.println("--------------");
+        }
+        prevMill = millis();
     }
+}
+
+void SensorsRead::control(float &linear_x, float &angular_z, bool debug)
+{
+    float old_lin_x = linear_x,
+          old_ang_z = angular_z;
+
+    if ((this->rightDist < 15) && (this->leftDist < 15) || (this->centRightDist < 15) && (this->centLeftDist < 15))
+    { //! FULL STOP
+        linear_x = linear_x > 0.0 ? 0 : linear_x;
+        angular_z = angular_z;
+
+        // TODO RED LED ON
+    }
+    else if (this->rightDist < 15 || (this->centRightDist < 15))
+    { //! Turn Left
+        linear_x = linear_x / 2;
+
+        // angular_z = 0.5;
+        angular_z = angular_z > 0.0 ? angular_z : 0;
+    }
+    else if ((this->leftDist < 15) || (this->centLeftDist < 15))
+    { //! Turn Right
+        linear_x = linear_x / 2;
+
+        // angular_z = -0.5;
+        angular_z = angular_z < 0.0 ? angular_z : 0;
+    }
+    else
+    {
+        linear_x = linear_x,
+        angular_z = angular_z;
+    }
+
+    if (debug)
+    {
+        Serial.printf("old linear_x: %f \t", old_lin_x);
+        Serial.printf("old angular_z: %f \t", old_ang_z);
+        Serial.printf("after linear_x: %f \t", linear_x);
+        Serial.printf("after angular_z: %f \n", angular_z);
+    }
+}
+
+SensorsRead::~SensorsRead()
+{
 }
