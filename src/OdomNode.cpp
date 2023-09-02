@@ -3,10 +3,12 @@
 OdomNode::OdomNode()
 {
   this->_ODrive = new ODrive;
+  this->_Global_Right_Motor_Position = 0;
+  this->_Global_Left_Motor_Position = 0;
   pinMode(2, OUTPUT);
 }
 short c = 0;
-void OdomNode::updateOdom(bool debug)
+void OdomNode::update(bool debug)
 {
   if (millis() - this->getVelMillis > 5)
   {

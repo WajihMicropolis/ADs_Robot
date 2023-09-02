@@ -304,5 +304,4 @@
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__functions.h \
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/rosidl_generator_c__visibility_control.h \
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__type_support.h \
- include/OdomNode.hpp include/ODrive.hpp include/RosNode.hpp \
- include/SensorsRead.hpp
+ include/OdomNode.hpp include/ODrive.hpp include/SensorsRead.hpp

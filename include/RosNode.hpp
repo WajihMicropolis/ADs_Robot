@@ -13,12 +13,20 @@
 #include <nav_msgs/msg/odometry.h>
 #include <rcutils/logging_macros.h>
 #include <rcl/time.h>
-
 #include "OdomNode.hpp"
+
 class uROS
 {
 private:
 #define RCCHECK(fn)                  \
+    {                                \
+        rcl_ret_t temp_rc = fn;      \
+        if ((temp_rc != RCL_RET_OK)) \
+        {                            \
+        }                            \
+    }
+
+#define RCSOFTCHECK(fn)              \
     {                                \
         rcl_ret_t temp_rc = fn;      \
         if ((temp_rc != RCL_RET_OK)) \
@@ -42,18 +50,16 @@ private:
         }                                  \
     } while (0);
 
-    rcl_subscription_t _cmd_vel_subscriber;
-    geometry_msgs__msg__Twist _cmd_vel;
-
+    bool _micro_ros_init_successful;
     rcl_node_t node;
     rclc_support_t support;
     rclc_executor_t executor;
     rcl_allocator_t allocator;
 
-    rcl_timer_t timer;
-    rcl_timer_t timer2;
+    rcl_timer_t _Pose_timer;
+    rcl_timer_t _Twist_timer;
 
-    bool _micro_ros_init_successful;
+    OdomNode *_odom;
 
     enum states
     {
@@ -67,12 +73,13 @@ private:
     void destroy_entities();
 
 public:
-    void cmdVelCb();
-    geometry_msgs__msg__Twist cmdVel;
-
+    // void getCmdVel();
+    float linear_x,
+        angular_z;
     bool rosNodeAvail = LOW;
     void Init();
-    void Update();
+
+    std::pair<float, float> Update();
     uROS(/* args */);
     ~uROS();
 };

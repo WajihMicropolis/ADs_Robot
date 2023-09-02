@@ -1,0 +1,216 @@
+#include <Arduino.h>
+#include "RosNode.hpp"
+
+#include <micro_ros_platformio.h>
+#include <rcl/rcl.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
+#include <rmw_microros/rmw_microros.h>
+#include <rcl_interfaces/msg/log.h>
+#include <sensor_msgs/msg/range.h>
+#include <geometry_msgs/msg/twist.h>
+#include <geometry_msgs/msg/pose.h>
+float cmd_linear_x = 0;
+float cmd_angular_z = 0;
+
+rcl_subscription_t cmd_vel_subscriber;
+geometry_msgs__msg__Twist cmd_vel;
+
+rcl_publisher_t _Pose_Pub;
+geometry_msgs__msg__Pose Pose_msg;
+
+rcl_publisher_t _Twist_Pub;
+geometry_msgs__msg__Twist Twist_msg;
+
+rcl_allocator_t allocator;
+rclc_executor_t executor;
+
+rclc_support_t support;
+rcl_node_t node;
+
+rcl_timer_t timer1;
+rcl_timer_t timer2;
+bool micro_ros_init_successful;
+
+states state;
+
+// twist message cb
+void cmd_vel_callback(const void *msgin)
+{
+   const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *)msgin;
+
+   cmd_linear_x = msg->linear.x;
+   cmd_angular_z = msg->angular.z;
+   analogWrite(2, int(cmd_linear_x * 255));
+}
+
+void poseCB(rcl_timer_t *timer, int64_t last_call_time)
+{
+   RCLC_UNUSED(last_call_time);
+   Pose_msg.position.x = 10;
+   RCSOFTCHECK(rcl_publish(&odom_Pose_Pub, &Pose_msg, NULL));
+}
+
+void twistCB(rcl_timer_t *timer, int64_t last_call_time)
+{
+   RCLC_UNUSED(last_call_time);
+   Twist_msg.linear.x = 10;
+   RCSOFTCHECK(rcl_publish(&odom_Twist_Pub, &Twist_msg, NULL));
+}
+
+bool create_entities()
+{
+   // Initialize micro-ROS allocator
+   // The allocator object wraps the dynamic memory allocation and deallocating methods used in micro-ROS
+   allocator = rcl_get_default_allocator();
+
+   // create init_options
+   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
+
+   // create node
+   const char *node_name = "nh";
+
+   RCCHECK(rclc_node_init_default(&node, node_name, "", &support));
+
+   // create Twist Subscriber
+   const char *sub_topic_name = "/cmd_vel";
+   const char *pub_topic_US_left = "/ultrasonic_left";
+   const char *pub_topic_US_right = "/ultrasonic_right";
+   const char *pose_topic = "pose";
+   const char *odom_topic = "odom";
+
+   // create subscriber
+   RCCHECK(rclc_subscription_init_default(
+       &cmd_vel_subscriber,
+       &node,
+       ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+       sub_topic_name));
+
+   // create publisher
+   RCCHECK(rclc_publisher_init_default(
+       &odom_Pose_Pub,
+       &node,
+       ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Pose),
+       pose_topic));
+
+   RCCHECK(rclc_publisher_init_default(
+       &odom_Twist_Pub,
+       &node,
+       ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+       "twist"));
+
+   
+
+   // create timer,
+   const unsigned int timer_timeout = 50;
+
+   // RCCHECK(rclc_timer_init_default(
+   //     &timer1,
+   //     &support,
+   //     RCL_MS_TO_NS(timer_timeout),
+   //     poseCB));
+
+   // RCCHECK(rclc_timer_init_default(
+   //     &timer1,
+   //     &support,
+   //     RCL_MS_TO_NS(timer_timeout),
+   //     twistCB));
+
+   // create executor
+   executor = rclc_executor_get_zero_initialized_executor();
+
+   RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator));
+   // RCCHECK(rclc_executor_add_timer(&executor, &timer)); // used for publisher
+   // RCCHECK(rclc_executor_add_timer(&executor, &timer));
+   RCCHECK(rclc_executor_add_timer(&executor, &timer1));
+   // RCCHECK(rclc_executor_add_timer(&executor, &timer3));
+
+   RCCHECK(rclc_executor_add_subscription(&executor, &cmd_vel_subscriber, &cmd_vel, &cmd_vel_callback, ON_NEW_DATA));
+
+   return true;
+}
+
+void destroy_entities()
+{
+   rmw_context_t *rmw_context = rcl_context_get_rmw_context(&support.context);
+   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
+
+   rcl_subscription_fini(&cmd_vel_subscriber, &node);
+   // rcl_publisher_fini(&US_Right_Pub, &node);
+   // rcl_publisher_fini(&US_Left_Pub, &node);
+   rcl_publisher_fini(&odom_Pose_Pub, &node);
+   rcl_publisher_fini(&odom_Twist_Pub, &node);
+   // rcl_publisher_fini(&odom_pub, &node);
+   rcl_timer_fini(&timer1);
+   // rcl_timer_fini(&timer2);
+   // rcl_timer_fini(&timer3);
+   rclc_executor_fini(&executor);
+   rcl_node_fini(&node);
+   rclc_support_fini(&support);
+}
+
+void ros_init()
+{
+   // Configure serial transport
+   pinMode(2, OUTPUT);
+   // digitalWrite(LED_PIN, LOW);
+   Serial.begin(115200);
+   set_microros_serial_transports(Serial);
+   state = WAITING_AGENT;
+}
+void pub_twist()
+{
+   Pose_msg.position.x = 10;
+   RCSOFTCHECK(rcl_publish(&odom_Pose_Pub, &Pose_msg, NULL));
+
+   Twist_msg.linear.x = 10;
+   RCSOFTCHECK(rcl_publish(&odom_Twist_Pub, &Twist_msg, NULL));
+
+}
+void ros_loop()
+{
+
+   switch (state)
+   {
+
+   case WAITING_AGENT:
+      EXECUTE_EVERY_N_MS(500, state = (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) ? AGENT_AVAILABLE : WAITING_AGENT;);
+
+      break;
+
+   case AGENT_AVAILABLE:
+      // create_entities function re-initialize micro-ros setup
+      state = (true == create_entities()) ? AGENT_CONNECTED : WAITING_AGENT;
+      if (state == WAITING_AGENT)
+      {
+         destroy_entities();
+         // digitalWrite(2, LOW);
+      };
+
+      break;
+
+   case AGENT_CONNECTED:
+      EXECUTE_EVERY_N_MS(200, state = (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) ? AGENT_CONNECTED : AGENT_DISCONNECTED;);
+      if (state == AGENT_CONNECTED)
+      {
+         pub_twist();
+         RCSOFTCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
+         RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
+      }
+
+      break;
+
+   case AGENT_DISCONNECTED:
+      destroy_entities();
+      cmd_linear_x = 0;
+      cmd_angular_z = 0;
+      state = WAITING_AGENT;
+      // analogWrite(2, 0);
+      // Linear_Angle_Speed_Conv(0, 0);
+
+      break;
+
+   default:
+      break;
+   }
+}

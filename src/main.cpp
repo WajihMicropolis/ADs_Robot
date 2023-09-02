@@ -4,46 +4,57 @@
 #include "RosNode.hpp"
 #include "SensorsRead.hpp"
 
-// RC_Control RC;
-// ODrive ODRIVE;
-uROS ROS;
+RC_Control RC;
+ODrive ODRIVE;
+uROS microRos;
+SensorsRead Ultrasonic;
+std::pair<float, float> cmdVel(0, 0);
 
 void setup()
 {
   Serial.begin(115200);
-  // sensorsInit();
-  // RC.Init();
-  // ODRIVE.Init();
-  ROS.Init();
-}
 
+  microRos.Init();
+  RC.Init();
+  ODRIVE.Init();
+  Ultrasonic.Init();
+}
+float Linear_x = 0.0,
+      Angular_z = 0.0;
 void loop()
 {
-  // updateSensors();
+  //! 1. Get CmdVel
+  
+  cmdVel = microRos.Update();
+  analogWrite(2, int(cmdVel.first * 255));
 
-  ROS.Update();
-  /*if (!ROS.rosNodeAvail)
+  if (!microRos.rosNodeAvail) //uROS not available
   {
-    // Serial.println("ROS NODE NOTTTTTT Avail");
 
-    if (RC.checkFailSafe(*RC.steering))
+    if (RC.checkFailSafe(*RC.steering)) // RC not connected
     {
-      // Serial.println("RC NOT CONNECTED!!!");
-      RC.Data.Throttle = RC.Data.Steering = 0.0;
+      Linear_x = Angular_z = 0.0;
     }
     else
     {
-      // Serial.println("RC CONNECTED");
-      RC.getVal(RC.Data,true);
-
+      RC.getVal(RC.Data);
+      Linear_x = RC.Data.Throttle;
+      Angular_z = RC.Data.Steering;
     }
-    ODRIVE.SetSpeed(RC.Data.Throttle, RC.Data.Steering);
   }
   else
   {
-    // Serial.println("ROS NODE Avail");
-    ODRIVE.SetSpeed(ROS.cmdVel.linear.x, ROS.cmdVel.angular.z);
+    Linear_x = cmdVel.first;
+    Angular_z = cmdVel.second;
   }
-delay(50);*/
-  // Serial.println("-------------");
+
+
+  //! 2. Read Ultrasonic
+
+  Ultrasonic.update();
+  Ultrasonic.control(Linear_x, Angular_z);
+
+  ODRIVE.SetSpeed(Linear_x, Angular_z);
+  delay(1);
+  Serial.println("-------------");
 }

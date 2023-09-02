@@ -3,8 +3,9 @@
 
 #include <Arduino.h>
 #include "ODrive.hpp"
-#include "RosNode.hpp"
-
+#include <geometry_msgs/msg/twist.h>
+#include <geometry_msgs/msg/pose.h>
+#include <nav_msgs/msg/odometry.h>
 class OdomNode
 {
 private:
@@ -21,14 +22,16 @@ private:
         _Global_Left_Motor_Speed;
 
     unsigned long getVelMillis = 0;
-
     nav_msgs__msg__Odometry odom_msg;
     ODrive *_ODrive;
 
 public:
-    void updateOdom(bool debug = false);
-    nav_msgs__msg__Odometry callback(bool debug = false);
-    rcl_publisher_t odom_publisher;
+    void update(bool debug = false);
+    geometry_msgs__msg__Pose updatePose();
+    geometry_msgs__msg__Twist updateTwist();
+    nav_msgs__msg__Odometry callback(bool debug);
+
+    // rcl_publisher_t odom_publisher;
     OdomNode();
     ~OdomNode();
 };

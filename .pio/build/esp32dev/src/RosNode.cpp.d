@@ -303,5 +303,4 @@
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/rosidl_generator_c__visibility_control.h \
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__type_support.h \
  include/OdomNode.hpp include/ODrive.hpp \
- lib/ODriveArduino/ODriveArduino.h lib/ODriveArduino/ODriveEnums.h \
- include/RosNode.hpp
+ lib/ODriveArduino/ODriveArduino.h lib/ODriveArduino/ODriveEnums.h
