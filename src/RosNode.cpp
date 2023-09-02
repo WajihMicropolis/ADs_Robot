@@ -16,7 +16,6 @@ float uROSLinear_x = 0,
 
 void uROS::Init()
 {
-   pinMode(2, OUTPUT);
    set_microros_serial_transports(Serial);
    AgentState = WAITING_AGENT;
 }

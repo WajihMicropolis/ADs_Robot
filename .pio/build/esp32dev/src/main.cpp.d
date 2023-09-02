@@ -304,4 +304,45 @@
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__functions.h \
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/rosidl_generator_c__visibility_control.h \
  lib/micro_ros_platformio/libmicroros/include/nav_msgs/msg/detail/odometry__type_support.h \
- include/OdomNode.hpp include/ODrive.hpp include/SensorsRead.hpp
+ include/OdomNode.hpp include/ODrive.hpp include/SensorsRead.hpp \
+ include/Lights.hpp .pio/libdeps/esp32dev/FastLED/src/FastLED.h \
+ .pio/libdeps/esp32dev/FastLED/src/cpp_compat.h \
+ .pio/libdeps/esp32dev/FastLED/src/FastLED.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastled_config.h \
+ .pio/libdeps/esp32dev/FastLED/src/led_sysdefs.h \
+ .pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastled_delay.h \
+ .pio/libdeps/esp32dev/FastLED/src/bitswap.h \
+ .pio/libdeps/esp32dev/FastLED/src/controller.h \
+ .pio/libdeps/esp32dev/FastLED/src/pixeltypes.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion/math8.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion/scale8.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion/scale8.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion/random8.h \
+ .pio/libdeps/esp32dev/FastLED/src/lib8tion/trig8.h \
+ .pio/libdeps/esp32dev/FastLED/src/color.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastpin.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastspi_types.h \
+ .pio/libdeps/esp32dev/FastLED/src/dmx.h \
+ .pio/libdeps/esp32dev/FastLED/src/platforms.h \
+ .pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/fastled_esp32.h \
+ .pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/fastpin_esp32.h \
+ .pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/clockless_rmt_esp32.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/rmt.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_ringbuf/include/freertos/ringbuf.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/soc/esp32/include/soc/rmt_struct.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/rmt_types.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/periph_ctrl.h \
+ /home/wajih/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/soc/esp32/include/soc/periph_defs.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastled_progmem.h \
+ .pio/libdeps/esp32dev/FastLED/src/hsv2rgb.h \
+ .pio/libdeps/esp32dev/FastLED/src/colorutils.h \
+ .pio/libdeps/esp32dev/FastLED/src/pixelset.h \
+ .pio/libdeps/esp32dev/FastLED/src/colorpalettes.h \
+ .pio/libdeps/esp32dev/FastLED/src/noise.h \
+ .pio/libdeps/esp32dev/FastLED/src/power_mgt.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastspi.h \
+ .pio/libdeps/esp32dev/FastLED/src/fastspi_bitbang.h \
+ .pio/libdeps/esp32dev/FastLED/src/chipsets.h

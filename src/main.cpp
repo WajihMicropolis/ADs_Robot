@@ -3,13 +3,15 @@
 #include "ODrive.hpp"
 #include "RosNode.hpp"
 #include "SensorsRead.hpp"
+#include "Lights.hpp"
 
+LED led;
 RC_Control RC;
 ODrive ODRIVE;
 uROS microRos;
 SensorsRead Ultrasonic;
 std::pair<float, float> cmdVel(0, 0);
-
+CRGB color;
 void setup()
 {
   Serial.begin(115200);
@@ -23,12 +25,12 @@ float Linear_x = 0.0,
       Angular_z = 0.0;
 void loop()
 {
-  //! 1. Get CmdVel
-  
-  cmdVel = microRos.Update();
-  analogWrite(2, int(cmdVel.first * 255));
 
-  if (!microRos.rosNodeAvail) //uROS not available
+  //! 1. Get CmdVel
+
+  cmdVel = microRos.Update();
+
+  if (!microRos.rosNodeAvail) // uROS not available
   {
 
     if (RC.checkFailSafe(*RC.steering)) // RC not connected
@@ -48,13 +50,31 @@ void loop()
     Angular_z = cmdVel.second;
   }
 
-
   //! 2. Read Ultrasonic
 
   Ultrasonic.update();
   Ultrasonic.control(Linear_x, Angular_z);
 
   ODRIVE.SetSpeed(Linear_x, Angular_z);
-  delay(1);
-  Serial.println("-------------");
+
+  if (RC.Data.Chan3)
+  {
+    if (Linear_x == 0.0 && Angular_z == 0.0)
+    {
+      color.r = 255, color.g = 0, color.b = 0;
+    }
+    else
+    {
+      color.r = 0, color.g = 0, color.b = 255;
+    }
+    led.fade(color);
+  }
+  else
+  {
+    led.Clear();
+  }
+  led.steering(Angular_z);
+
+  // delay(1);
+  // Serial.println("-------------");
 }
