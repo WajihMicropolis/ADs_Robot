@@ -11,7 +11,7 @@ private:
 #define NUM_LEDS 144
 
 #define SSR_Left 2
-#define SSR_Yellow 4
+#define SSR_Brake 4
 #define SSR_Green 5
 #define SSR_Right 18
 
@@ -26,10 +26,12 @@ private:
     const unsigned long SSR_High_Delay = 750;
     const unsigned long SSR_Low_Delay = 100;
 
-public:
     void fade(CRGB col);
     void Clear();
     void steering(float angular_z);
+
+public:
+    void update(float linear_x, float angular_z, bool chan3);
 
     LED();
     ~LED();

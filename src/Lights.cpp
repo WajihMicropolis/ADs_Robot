@@ -5,7 +5,7 @@ LED::LED(/* args */)
     FastLED.addLeds<NEOPIXEL, LED_Pin>(leds, NUM_LEDS);
 
     pinMode(SSR_Left, OUTPUT);
-    pinMode(SSR_Yellow, OUTPUT);
+    pinMode(SSR_Brake, OUTPUT);
     pinMode(SSR_Green, OUTPUT);
     pinMode(SSR_Right, OUTPUT);
 }
@@ -56,12 +56,9 @@ static unsigned long prevMillRun = 0;
 
 void LED::steering(float angular_z)
 {
-    // Serial.printf("ang_z: %f \n", angular_z);
-
-    unsigned long currentMillis = millis();
     if (angular_z != 0)
     {
-        if (currentMillis - prevMillRun <= SSR_High_Delay)
+        if (millis() - prevMillRun <= SSR_High_Delay)
         {
             if (angular_z > 0.0)
             {
@@ -76,24 +73,44 @@ void LED::steering(float angular_z)
                 digitalWrite(SSR_Right, HIGH);
             }
         }
-        else if (currentMillis - prevMillRun <= (SSR_High_Delay + SSR_Low_Delay))
+        else if (millis() - prevMillRun <= (SSR_High_Delay + SSR_Low_Delay))
         {
             digitalWrite(SSR_Right, LOW);
             digitalWrite(SSR_Left, LOW);
         }
         else
-            prevMillRun = currentMillis;
+            prevMillRun = millis();
     }
     else
     {
         digitalWrite(SSR_Right, LOW);
         digitalWrite(SSR_Left, LOW);
     }
-    // digitalWrite(SSR_Right, HIGH);
-    // digitalWrite(SSR_Left, HIGH);
+}
+CRGB color;
 
-    // delay(750);
-    // delay(100);
+void LED::update(float linear_x, float angular_z, bool chan3)
+{
+    if (chan3)
+    {
+        if (linear_x == 0.0 && angular_z == 0.0)
+        {
+            color.r = 255, color.g = 0, color.b = 0;
+        }
+        else
+        {
+            color.r = 0, color.g = 0, color.b = 255;
+        }
+        this->fade(color);
+    }
+    else
+    {
+        this->Clear();
+    }
+
+    digitalWrite(SSR_Brake, (linear_x == 0.0 && angular_z == 0.0));
+
+    this->steering(angular_z);
 }
 
 LED::~LED()
